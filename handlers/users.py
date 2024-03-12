@@ -1,5 +1,5 @@
 from flask import jsonify
-from dao.users import UserDAO
+from dao.userdao import UserDAO
 
 # This class will mostly handle the jsonify formatting of all the functions
 # that will be implemented by the DAO, it calls the DAO to get
@@ -8,7 +8,7 @@ from dao.users import UserDAO
 class UserHandler:
 
     """
-    This section prepares the jsonify format using the attributes in User
+    This section prepares the jsonify format using the attributes in users
     which is found on the schema
     """
     def build_user_dict(self,row):
