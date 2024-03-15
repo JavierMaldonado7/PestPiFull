@@ -28,6 +28,24 @@ class MainPestDAO:
         cursor.execute(query, (model_id,))
         result = cursor.fetchone()
         return result
+
+    def getMainPestByPestPiById(self, pi_id):
+        cursor = self.conn.cursor()
+        query = "GOTTA REDO THE SQL QUERY;"
+        cursor.execute(query, (pi_id,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+    
+    def getMainPestByAlertById(self, alert_id):
+        cursor = self.conn.cursor()
+        query = "GOTTA REDO THE SQL QUERY;"
+        cursor.execute(query, (alert_id,))
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
     
     def getMainPestByIPMain(self, ip_main):
         cursor = self.conn.cursor()
@@ -41,10 +59,10 @@ class MainPestDAO:
     
     # This section handles the insert, delete and update queries
 
-    def insertMainPest(self, model_id, ip_main):
+    def insertMainPest(self, alert_id, pi_id, ip_main):
         cursor = self.conn.cursor()
-        query = "insert into MainPest(model_id, ip_main) values (%s, %s, %s) returning model_id;"
-        cursor.execute(query, (model_id, ip_main,))
+        query = "insert into MainPests(alert_id, pi_id, ip_main) values (%s, %s, %s) returning model_id;"
+        cursor.execute(query, (alert_id, pi_id, ip_main,))
         model_id = cursor.fetchone()[0]
         self.conn.commit()
         return model_id 
@@ -56,10 +74,10 @@ class MainPestDAO:
         self.conn.commit()
         return model_id 
     
-    def updateMainPest(self, model_id, ip_main):
+    def updateMainPest(self, model_id, alert_id, pi_id, ip_main):
         cursor = self.conn.cursor()
-        query = "update MainPest set model_id = %s, ip_main = %s;"
-        cursor.execute(query, (model_id, ip_main,))
+        query = "update MainPest set alert_id = %s, pi_id = %s, ip_main = %s;"
+        cursor.execute(query, (alert_id, pi_id, ip_main,))
         self.conn.commit()
         return model_id 
     
