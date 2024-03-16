@@ -3,6 +3,7 @@ from flask_cors import CORS
 from os import makedirs
 
 from handlers.users import UserHandler
+from handlers.pestpi import piHandler
 
 app = Flask(__name__, instance_relative_config=True)
 
@@ -43,5 +44,28 @@ def searchByUserId(user_id):
         return UserHandler().updateUser(user_id, args)
     elif request.method == "DELETE":
         return UserHandler().deleteUser(user_id)
+    else:
+        return jsonify("Not supported"), 405
+    
+# pestpis : get update delete
+@app.route('/TEAMNAME/pestpi/<int:pi_id>', methods=["GET", "PUT", "DELETE"])
+def searchByPIid(pi_id):
+    if request.method == "GET":
+        return piHandler().getPIbyId(pi_id)
+    elif request.method == "PUT":
+        args = request.json
+        return piHandler().updatePI(pi_id,args)
+    elif request.method == "DELETE":
+        return piHandler().deletePI(pi_id)
+    else:
+        return jsonify("Not supported"), 405
+#pestpis : insert/post 
+@app.route('/TEAMNAME/pestpi', methods=["GET", "POST"])
+def getallPI():
+    if request.method == "GET":
+        return piHandler().getAllPI()
+    elif request.method == "POST":
+        args = request.json
+        return piHandler().insertPI(args)
     else:
         return jsonify("Not supported"), 405
