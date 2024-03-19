@@ -111,7 +111,7 @@ class MainPestHandler:
            pi_id = form['pi_id']
            ip_main = form['ip_main']
            
-            if alert_id and pi_id and ip_main:
+           if alert_id and pi_id and ip_main:
                 dao = MainPestDAO()
                 model_id = dao.updateMainPest(alert_id, pi_id, ip_main)
                 result = self.build_mainpest_attributes(model_id ,alert_id, pi_id, ip_main)
