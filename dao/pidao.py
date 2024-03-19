@@ -14,17 +14,18 @@ class piDAO:
     def getAllPI(self):
         cursor = self.conn.cursor()
         result = []
-        query = None
+        query = 'select pi_id,user_id,pi_ipmain,ip_location,pi_ip,pi_status from "pestpis"'
         cursor.execute(query)
         for row in cursor:
             #print("row: ", row)
             result.append(row)
         return result
+		
     
     def insertPI(self,user_id,pi_ipmain,ip_location,pi_ip,pi_status):
         cursor = self.conn.cursor()
         #validation check for dependencies/references exist
-        query = None
+        query = 'insert into "pestpis"(user_id,pi_ipmain,ip_location,pi_ip,pi_status) values (%s,%s,%s,%s,%s) returning pi_id;'
         # 'insert into "pestpis"(user_id,pi_ipmain,ip_location,pi_ip,pi_status) values (%s,%s,%s,%s,%s) returning pi_id;'
         cursor.execute(query,(user_id,pi_ipmain,ip_location,pi_ip,pi_status,))
         pi_id = cursor.fetchone()[0]
@@ -33,11 +34,11 @@ class piDAO:
 
     def searchByID(self,pi_id):
         cursor = self.conn.cursor()
-        query = None
+        query = 'select pi_id,user_id,pi_ipmain,ip_location,pi_ip,pi_status from "pestpis" where pi_id = %s'
         cursor.execute(query,(pi_id,))
         result = cursor.fetchone()
         return result
-
+		
         
     def updateById(self,pi_id,user_id,pi_ipmain,ip_location,pi_ip,pi_status):
         cursor = self.conn.cursor()
