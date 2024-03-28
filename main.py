@@ -69,3 +69,30 @@ def getallPI():
         return piHandler().insertPI(args)
     else:
         return jsonify("Not supported"), 405
+    
+# statistics=============================================================================
+@app.route('/TEAMNAME/stats/alerts', methods=["GET"])
+def getLastAlert():
+    if request.method == "GET":
+        #return statHandler().getLastAlert()
+        return jsonify("Incomplete / Not supported"), 405
+    else: 
+        return jsonify("Not supported"), 405
+
+@app.route('/TEAMNAME/top3location', methods=["POST"])
+def top3locations():
+    if request.method == 'POST':
+        data = request.json
+        #return statHandler().getTop3(data)
+        return jsonify("Incomplete / Not supported"), 405
+    else:
+        return jsonify("Not supported"), 405
+
+@app.route('/TEAMNAME/topsightings', methods=["POST"])
+def topSightings():
+    if request.method == 'POST':
+        data = request.json
+        #return statHandler().getTopSightings(data)
+        return jsonify("Incomplete / Not supported"), 405
+    else:
+        return jsonify("Not supported"), 405
