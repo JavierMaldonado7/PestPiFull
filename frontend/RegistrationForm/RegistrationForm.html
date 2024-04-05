@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <link rel="stylesheet" href="registrationStyles.css">
+</head>
+<body>
+    <div class="container">
+        <div><p></p><p></p><p></p><p></p><p></p><p></p><p></p><p></p></div>
+        <div class="registration-box">
+            <h2>Registration Form</h2>
+            <form id="registrationForm" method="post" action="register.php">
+                <div class="column">
+                    <input type="text" id="firstName" name="firstName" placeholder="First Name" required>
+                    <input type="text" id="lastName" name="lastName" placeholder="Last Name" required>
+                    <input type="tel" id="telephone" name="telephone" placeholder="Telephone" required>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                    <label><input type="checkbox"> Send me alerts to my e-mail address.</label>
+
+                </div>
+                <div class ="column">
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <input type="password" id="repeatPassword" placeholder="Repeat Password" required> 
+                    <!-- The above input needs to be checked with the previous input not with the database, adjust accordingly -->
+                    <select id="role" name="role" required>
+                        <option value="" disabled selected>Role in Organization</option>
+                        <option value="manager">Manager</option>
+                        <option value="employee">Employee</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <div class="speciesofinterest">
+                        <select id="species" name="species" required>
+                            <option value="" disabled selected>Species of Interest</option>
+                            <option value="rodent">Rodent</option>
+                            <option value="iguana">Iguana</option>
+                            <option value="snake">Red Tailed Boa</option>
+                        </select>
+                    </div>
+                    <button type="submit">REGISTER NOW</button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+
+    <script src="registerForm.js"></script>
+</body>
+</html>
