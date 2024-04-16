@@ -20,7 +20,7 @@ class statsDAO:
             #print("row: ", row)
             result.append(row)
         return result
-    # SELECT *
+    # SELECT alert_id, user_id, pi_id, species , alert_date
     # FROM alerts
     # ORDER BY time DESC
     # LIMIT 5;
@@ -34,10 +34,10 @@ class statsDAO:
             #print("row: ", row)
             result.append(row)
         return result
-    # SELECT species, location, COUNT(*) AS alert_count
-    #  FROM alerts
+    # SELECT species, pi_location, COUNT(*) AS alert_count
+    #  FROM alerts natural inner join pestpis
     #  WHERE species = %s
-    #  GROUP BY location
+    #  GROUP BY pi_location
     #  ORDER BY alert_count DESC
     #  LIMIT 3);
 
@@ -50,11 +50,11 @@ class statsDAO:
             #print("row: ", row)
             result.append(row)
         return result
-    # SELECT species, location, COUNT(*) AS sightings_count, MAX(time) AS last_sighting
-    # FROM alerts
+    # SELECT species, pi_location, COUNT(*) AS sightings_count, MAX(time) AS last_sighting
+    # FROM alerts natural inner join pestpis
     # WHERE species = '%s'
-    #   AND location = '%s'
+    #   AND pi_location = '%s'
     #   AND time >= NOW() - INTERVAL '%s'
-    # GROUP BY species, location
+    # GROUP BY species, pi_location
     # ORDER BY sightings_count DESC
     # LIMIT 5;
