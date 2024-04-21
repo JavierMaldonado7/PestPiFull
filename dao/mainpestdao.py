@@ -48,10 +48,10 @@ class MainPestDAO:
             result.append(row)
         return result
     
-    def getMainPestByIPMain(self, ip_main):
+    def getMainPestByMainIp(self, main_ip):
         cursor = self.conn.cursor()
-        query = 'select main_id, user_id, main_ip, pi_ip from "mainpests" where ip_main = %s'
-        cursor.execute(query, (ip_main,))
+        query = 'select main_id, user_id, main_ip, pi_ip from "mainpests" where main_ip = %s'
+        cursor.execute(query, (main_ip,))
         result = []
         for row in cursor:
             result.append(row)
@@ -60,27 +60,27 @@ class MainPestDAO:
     
     # This section handles the insert, delete and update queries
 
-    def insertMainPest(self, alert_id, pi_id, ip_main):
+    def insertMainPest(self, user_id, main_ip, pi_ip):
         cursor = self.conn.cursor()
-        query = 'insert into "mainpests"(alert_id, pi_id, ip_main) values (%s, %s, %s) returning model_id;'
-        cursor.execute(query, (alert_id, pi_id, ip_main,))
-        model_id = cursor.fetchone()[0]
+        query = 'insert into "mainpests"(user_id, main_ip, pi_ip)  values (%s, %s, %s) returning main_id;'
+        cursor.execute(query, (user_id, main_ip, pi_ip,))
+        main_id = cursor.fetchone()[0]
         self.conn.commit()
-        return model_id 
+        return main_id
       
-    def deleteMainPest(self, model_id):
+    def deleteMainPest(self, main_id):
         cursor = self.conn.cursor()
-        query = 'delete from "mainpests" where model_id = %s;'
-        cursor.execute(query, (model_id,))
+        query = 'delete from "mainpests" where main_id = %s;'
+        cursor.execute(query, (main_id,))
         self.conn.commit()
-        return model_id 
+        return main_id
     
-    def updateMainPest(self, model_id, alert_id, pi_id, ip_main):
+    def updateMainPest(self, main_id, user_id, main_ip, pi_ip):
         cursor = self.conn.cursor()
-        query = 'update "mainpests" set alert_id = %s, pi_id = %s, ip_main = %s where model_id = %s;'
-        cursor.execute(query, (alert_id, pi_id, ip_main,model_id,))
+        query = 'update "mainpests" set user_id = %s, main_ip = %s, pi_ip = %s where main_id = %s;'
+        cursor.execute(query, (user_id, main_ip, pi_ip, main_id))
         self.conn.commit()
-        return model_id 
+        return main_id
     
     #Complex queries go here
     
