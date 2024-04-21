@@ -14,7 +14,7 @@ class piDAO:
     def getAllPI(self):
         cursor = self.conn.cursor()
         result = []
-        query = 'select pi_id,user_id,pi_ipmain,ip_location,pi_ip,pi_status from "pestpis"'
+        query = 'select pi_id, user_id, pi_ipmain, pi_location, pi_ip, pi_status from "pestpis"'
         cursor.execute(query)
         for row in cursor:
             #print("row: ", row)
@@ -22,28 +22,28 @@ class piDAO:
         return result
 		
     
-    def insertPI(self,user_id,pi_ipmain,ip_location,pi_ip,pi_status):
+    def insertPI(self, user_id, pi_ipmain, pi_location, pi_ip, pi_status):
         cursor = self.conn.cursor()
         #validation check for dependencies/references exist
-        query = 'insert into "pestpis"(user_id,pi_ipmain,ip_location,pi_ip,pi_status) values (%s,%s,%s,%s,%s) returning pi_id;'
+        query = 'insert into "pestpis"(user_id, pi_ipmain, pi_location, pi_ip, pi_status) values (%s,%s,%s,%s,%s) returning pi_id;'
         # 'insert into "pestpis"(user_id,pi_ipmain,ip_location,pi_ip,pi_status) values (%s,%s,%s,%s,%s) returning pi_id;'
-        cursor.execute(query,(user_id,pi_ipmain,ip_location,pi_ip,pi_status,))
+        cursor.execute(query,(user_id, pi_ipmain, pi_location, pi_ip, pi_status,))
         pi_id = cursor.fetchone()[0]
         self.conn.commit()
         return pi_id
 
-    def searchByID(self,pi_id):
+    def searchByID(self, pi_id):
         cursor = self.conn.cursor()
-        query = 'select pi_id,user_id,pi_ipmain,ip_location,pi_ip,pi_status from "pestpis" where pi_id = %s'
+        query = 'select pi_id, user_id, pi_ipmain, pi_location, pi_ip, pi_status from "pestpis" where pi_id = %s'
         cursor.execute(query,(pi_id,))
         result = cursor.fetchone()
         return result
 		
         
-    def updateById(self,pi_id,user_id,pi_ipmain,ip_location,pi_ip,pi_status):
+    def updateById(self, pi_id, user_id, pi_ipmain, pi_location, pi_ip, pi_status):
         cursor = self.conn.cursor()
-        query = 'update "pestpis" set user_id = %s,pi_ipmain = %s,ip_location = %s,pi_ip = %s,pi_status = %s where pi_id = %s;'
-        cursor.execute(query,(user_id,pi_ipmain,ip_location,pi_ip,pi_status,pi_id,))
+        query = 'update "pestpis" set user_id = %s, pi_ipmain = %s, pi_location = %s, pi_ip = %s, pi_status = %s where pi_id = %s;'
+        cursor.execute(query,(user_id, pi_ipmain, pi_location, pi_ip, pi_status, pi_id,))
         count = cursor.rowcount
         self.conn.commit()
         return count

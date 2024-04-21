@@ -15,14 +15,18 @@ class AlertHandler:
         result = {}
         result['alert_id'] = row[0]
         result['user_id'] = row[1]
-        result['alert_date'] = row[2]
-        result['alert_isActive'] = row[3]
+        result['pi_id'] = row[2]
+        result['alert_type'] = row[3]
+        result['alert_date'] = row[4]
+        result['alert_isActive'] = row[5]
         return result
     
-    def build_alert_attributes(self, alert_id, user_id, alert_date, alert_isActive):
+    def build_alert_attributes(self, alert_id, user_id, pi_id, alert_type, alert_date, alert_isActive):
         result = {}
         result['alert_id'] = alert_id
         result['user_id'] = user_id
+        result['pi_id'] = pi_id
+        result['alert_type'] = alert_type
         result['alert_date'] = alert_date
         result['alert_isActive'] = alert_isActive
         return result
@@ -56,6 +60,25 @@ class AlertHandler:
         else:
             alert = self.build_alert_dict(row)
             return jsonify({"Alert" : alert}), 200
+
+    def getAlertByPiId(self, pi_id):
+        dao = AlertDAO()
+        row = dao.getAlertByPiId(pi_id)
+        if not row:
+            return jsonify(Error = "Alert Not Found"), 404
+        else:
+            alert = self.build_alert_dict(row)
+            return jsonify({"Alert" : alert}), 200  
+
+    def getAlertByAlertType(self, alert_type):
+        dao = AlertDAO()
+        row = dao.getAlertByAlertType(alert_type)
+        if not row:
+            return jsonify(Error = "Alert Not Found"), 404
+        else:
+            alert = self.build_alert_dict(row)
+            return jsonify({"Alert" : alert}), 200     
+
         
     def getAlertByDate(self, alert_date):
         dao = AlertDAO()
@@ -79,17 +102,19 @@ class AlertHandler:
         
     def insertAlert(self, form):
         print("form: ", form)
-        if len(form) != 3:
+        if len(form) != 5:
             return jsonify(Error = "Malformed Post Request"), 400
         else:
             user_id = form['user_id']
+            pi_id = form['pi_id']
+            alert_type = form['alert_type']
             alert_date = form['alert_date']
             alert_isActive = form['alert_isActive']
 
-            if user_id and alert_date and alert_isActive:
+            if user_id and pi_id and alert_type and alert_date and alert_isActive:
                 dao = AlertDAO()
-                alert_id = dao.insertAlert(user_id, alert_date, alert_isActive)
-                result = self.build_alert_attributes(alert_id ,user_id, alert_date, alert_isActive)
+                alert_id = dao.insertAlert(user_id, pi_id, alert_type, alert_date, alert_isActive)
+                result = self.build_alert_attributes(alert_id ,user_id, pi_id, alert_type, alert_date, alert_isActive)
                 return jsonify(Alert=result)
             else:
                 return jsonify(Error = "Unexpected attributes in post request"), 400
@@ -108,13 +133,15 @@ class AlertHandler:
             return jsonify(Error = "Malformed Update Request"), 400
         else:
            user_id = form['user_id']
+           pi_id = form['pi_id']
+           alert_type = form['alert_type']
            alert_date = form['alert_date']
            alert_isActive = form['alert_isActive']
 
-           if user_id and alert_date and alert_isActive:
+           if user_id and pi_id and alert_type and alert_date and alert_isActive:
                 dao = AlertDAO()
-                alert_id = dao.updateAlert(user_id, alert_date, alert_isActive)
-                result = self.build_alert_attributes(alert_id ,user_id, alert_date, alert_isActive)
+                alert_id = dao.updateAlert(user_id, pi_id, alert_type, alert_date, alert_isActive)
+                result = self.build_alert_attributes(alert_id ,user_id, pi_id, alert_type, alert_date, alert_isActive)
                 return jsonify(Alert=result)
            else:
                 return jsonify(Error = "Unexpected attributes in post request"), 400
