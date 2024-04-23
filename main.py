@@ -96,3 +96,7 @@ def topSightings():
         return jsonify("Incomplete / Not supported"), 405
     else:
         return jsonify("Not supported"), 405
+    
+if __name__ == "__main__":
+    app.debug = True
+    app.run()
