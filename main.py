@@ -60,7 +60,7 @@ def searchByUserId(user_id):
 
 # Insert(post) a pestpi or get all pestpis
 @app.route('/capstone-pestpi/pestpi', methods=["GET", "POST"])
-def getAllUsers():
+def getAllPestPis():
     if request.method == 'GET':
         return piHandler().getAllPI()
     elif request.method == 'POST':
@@ -88,7 +88,7 @@ def searchByPIid(pi_id):
 #######################
 
 #This statistic gets the Last Alert that was created
-@app.route('/TEAMNAME/stats/lastalert', methods=["GET"])
+@app.route('/capstone-pestpi/stats/lastalert', methods=["GET"])
 def getLastAlert():
     if request.method == 'GET':
         return AlertHandler().getLastAlert()
@@ -96,15 +96,15 @@ def getLastAlert():
         return jsonify("Not supported"), 405
 
 #This statistic gets the Top 3 Locations 
-@app.route('/TEAMNAME/top3location', methods=["GET"])
+@app.route('/capstone-pestpi/top3location', methods=["GET"])
 def top3locations():
     if request.method == 'GET':
-        return piHandler.getTop3Locations()
+        return piHandler().getTop3Locations()
     else: 
         return jsonify("Not supported"), 405    
 
 #This statistic gets the Top Sightings 
-@app.route('/TEAMNAME/topsightings', methods=["GET"])
+@app.route('/capstone-pestpi/topsightings', methods=["GET"])
 def topSightings():
     if request.method == 'GET':
         return AlertHandler().getTopSightings()

@@ -2,7 +2,7 @@ from flask import jsonify
 from dao.pidao import piDAO
 
 class piHandler:
-    def build_pi_dict(selft,row):
+    def build_pi_dict(self,row):
         result = {}
         result['pi_id'] = row[0]
         result['user_id'] = row[1]
