@@ -21,6 +21,12 @@ class AlertHandler:
         result['alert_isActive'] = row[5]
         return result
     
+    def build_topsightingalert_dict(self, row):
+        result = {}
+        result['alert_type'] = row[0]
+        result['alert_count'] = row[1]
+        return result
+    
     def build_alert_attributes(self, alert_id, user_id, pi_id, alert_type, alert_date, alert_isActive):
         result = {}
         result['alert_id'] = alert_id
@@ -97,6 +103,27 @@ class AlertHandler:
         else:
             alert = self.build_alert_dict(row)
             return jsonify({"Alert" : alert}), 200
+        
+    # This is the getLastAlert statistic 
+    def getLastAlert(self):
+        dao = AlertDAO()
+        row = dao.getLastAlert()
+        if not row:
+            return jsonify(Error = "Alert Not Found"), 404
+        else:
+            alert = self.build_alert_dict(row)
+            return jsonify({"Last Alert" : alert}), 200
+        
+    def getTopSightings(self):
+        dao = AlertDAO()
+        alerts_list = dao.getTopSightings()
+        result_list = []
+        for row in alerts_list:
+            result = self.build_topsightingalert_dict(row)
+            result_list.append(result)
+        return jsonify({"Top Sightings" : result_list}), 200
+
+
         
     # This section handles the jsonify for inserting, deleting and updating a alert
         

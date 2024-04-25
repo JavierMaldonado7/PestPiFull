@@ -20,6 +20,21 @@ class piDAO:
             #print("row: ", row)
             result.append(row)
         return result
+    
+    #This is the Top 3 locations stat
+
+    def getTop3Locations(self):
+        cursor = self.conn.cursor()
+        result = []
+        query = 'SELECT pi_location, COUNT(*) AS location_count\
+                FROM pestpis\
+                GROUP BY pi_location\
+                ORDER BY location_count DESC\
+                LIMIT 3;'
+        cursor.execute(query)
+        for row in cursor:
+            result.append(row)
+        return result
 		
     
     def insertPI(self, user_id, pi_ipmain, pi_location, pi_ip, pi_status):

@@ -11,6 +11,12 @@ class piHandler:
         result['pi_ip'] = row[4]
         result['pi_status'] = row[5]
         return result
+    
+    def build_top3locationspi_dict(self, row):
+        result = {}
+        result['pi_location'] = row[0]
+        result['location_count'] = row[1]
+        return result
 
     def build_pi_attributes(self, pi_id, user_id, pi_ipmain, pi_location, pi_ip, pi_satus):
         result = {}
@@ -30,6 +36,14 @@ class piHandler:
             result.append(self.build_pi_dict(row))
         return jsonify(result)
     
+    #This is the Top 3 Locations stat
+    def getTop3Locations(self):
+        dao = piDAO()
+        pi_list = dao.getTop3Locations()
+        result = []
+        for row in pi_list:
+            result.append(self.build_top3locationspi_dict(row))
+        return jsonify(result)
 
     def insertPI(self,data):
         print("form: \n", data )
