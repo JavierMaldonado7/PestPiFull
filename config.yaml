@@ -1,11 +1,11 @@
-path: C:/Users/17872/PycharmProjects/cv-attempt/data #dataset path ABSOLUTE PATH to dataset data folder
-train: C:/Users/17872/PycharmProjects/cv-attempt/data  #Point to the one that has images AND labels directory
-val: C:/Users/17872/PycharmProjects/cv-attempt/data
+path: C:\Users\jaime\PycharmProjects\flaskProject\data #dataset path ABSOLUTE PATH to dataset data folder
+train: C:\Users\jaime\PycharmProjects\flaskProject\data #Point to the one that has train AND labels directory
+val: C:\Users\jaime\PycharmProjects\flaskProject\data
 
 names:
-  0: rat
-  1: iguana
-  2: boa
-  3: mangosta
+  0: Iguana
+  1: Rodent
+  2: Snake
+
 
 
