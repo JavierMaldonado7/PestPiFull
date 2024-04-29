@@ -96,9 +96,10 @@ class AlertDAO:
                  GROUP BY user_id\
                  ) AS latest_alerts ON a.user_id = latest_alerts.user_id AND a.alert_date = latest_alerts.max_alert_date;'
         cursor.execute(query)
-        result = []
-        for row in cursor:
-            result.append(row)
+        # result = []
+        # for row in cursor:
+        #     result.append(row)
+        result = cursor.fetchone()
         return result
     
     #This is the getTopSightings statistic
