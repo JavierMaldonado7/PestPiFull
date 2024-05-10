@@ -1,10 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" href="{{ url_for('static', filename='Pest_Pi_Iguana_Logo.png') }}">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Login</title>
-    <style>
+    <style> .modal {
+    display: none;          /* Keep this to initially hide the modal */
+    position: fixed;        /* Fixed position to stay in place during scrolling */
+    top: 50%;               /* Position the top edge of the modal at the center of the page */
+    left: 20%;              /* Position the left edge of the modal at the center of the page */
+    transform: translate(-50%, -50%); /* Shift the modal up and left by half its height and width to center it */
+    width: 50%;             /* Set the width of the modal as a percentage of the screen width */
+    height: 50%;            /* Set the height of the modal as a percentage of the screen height */
+    z-index: 1000;          /* Ensure the modal is on top of other content */
+}
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 40%; }
         body {
     font-family: Arial, sans-serif;
 
@@ -85,10 +104,12 @@ button:hover {
 
     </style>
 </head>
-<body>
+
     <div class="container">
         <div class="login-box">
-            <h2>Pest-Pi</h2>
+              <img src="/static/Pest_Pi_Iguana_Logo.png" style="padding: 5px;
+    border-radius: 4px; width: 250px; height: 250px">
+
             <form id="loginForm">
                 <input type="email" id="email" placeholder="User ID" required>
                 <input type="password" id="password" placeholder="Password" required>
@@ -96,11 +117,41 @@ button:hover {
                 <button type="submit">LOG IN</button>
                 <div id="error-msg" style="color: red;"></div>
             </form>
+            <div id="resetModal" class="modal">
+    <div class="modal-content">
+        <span onclick="closeModal()" style="cursor:pointer; float: right;">&times; Close</span>
+        <h2>Reset Password</h2>
+        <p>Please enter your email address to receive a reset link.</p>
+        <input type="email" id="resetEmail" placeholder="Enter your email">
+        <button onclick="sendResetEmail()">Send Reset Link</button>
+    </div>
+</div>            <p><a href="#" onclick="showModal()">Forgot Password?</a></p>
+
             <p class="register-link">Don't have an account? <a href="/register">Register here</a>.</p>
         </div>
     </div>
 
-    <script>
+    <script> function showModal() {
+            document.getElementById('resetModal').style.display = 'block';
+        }
+        function closeModal() {
+            document.getElementById('resetModal').style.display = 'none';
+        }
+        function sendResetEmail() {
+            var email = document.getElementById('resetEmail').value;
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/send-reset-email', true);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('Reset link sent. Check your email.');
+                    closeModal();
+                } else {
+                    alert('Error sending reset link. Please try again.');
+                }
+            };
+            xhr.send('email=' + encodeURIComponent(email));
+        }
         document.getElementById('loginForm').onkeypress = function(e) {
     var key = e.charCode || e.keyCode || 0;
     if (key == 13) {

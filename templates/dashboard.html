@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
 Chart.register(Chart.plugins.title);
 </script>
@@ -97,11 +98,12 @@ Chart.register(Chart.plugins.title);
             padding: 20px;
             position: relative;
         }
-        .card-iguana { background-color: #3a6830; }
-        .card-rodent { background-color: #034c84; }
-        .card-boa { background-color: #954704; }
+        .card-iguana { background-color: #3a6830;  background-repeat: no-repeat; background-blend-mode: lighten; background-image: url('/static/formal_lizard_dingbat.png'); background-size: 40% 60%; background-position-x: right; background-position-y: bottom;}
+        .card-rodent { background-color: #034c84;background-repeat: no-repeat; background-blend-mode: lighten; background-image: url('/static/rat_dingbat.png'); background-size: 40% 60%; background-position-x: right; background-position-y: bottom; }
+        .card-Snake { background-color: #954704; background-repeat: no-repeat; background-blend-mode: lighten; background-image: url('/static/snake_dingbat.png'); background-size: 40% 60%; background-position-x: right; background-position-y: bottom; }
         .card-title {
-            font-size: 18px;
+            font-size: 24px;
+            font-weight: bold;
             margin-bottom: 5px;
         }
         .card-count {
@@ -369,7 +371,7 @@ canvas2 {
         /* Chart color adjustments */
         .chart-color-iguana { background-color: #4caf50; }
         .chart-color-rodent { background-color: #2196f3; }
-        .chart-color-boa { background-color: #ffc107; }
+        .chart-color-Snake { background-color: #ffc107; }
 
 /* Chart colors */
 .chart-color-iguana {
@@ -382,7 +384,7 @@ canvas2 {
     border-color: rgba(66, 165, 245, 1); /* Blue */
 }
 
-.chart-color-boa {
+.chart-color-Snake {
     background-color: rgba(239, 83, 80, 0.2); /* Light red */
     border-color: rgba(239, 83, 80, 1); /* Red */
 }
@@ -551,15 +553,30 @@ canvas2 {
     padding-left: 10px;
 
 }
+.filter-menu, .filter-menu-stats {
+
+    overflow: hidden; /* Prevents overflow of content outside the container */
+
+}
+
+
     </style>
+    <link rel="icon" href="{{ url_for('static', filename='Pest_Pi_Iguana_Logo.png') }}">
+
 </head>
 <body>
+
     <div class="sidebar">
-        <a href="#" class="menu-item">Alerts</a>
-        <a href="#" class="menu-item">Statistics</a>
-        <a href="#" class="menu-item">Camera</a>
-        <a href="#" class="menu-item">Settings</a>
-        <a href="/logout" class="logout-button">Logout</a>
+        <img src="/static/Pest_Pi_Iguana_Logo.png" style="padding: 5px;
+    border-radius: 4px; width: 250px; height: 250px">
+        <a href="#" class="menu-item" style="background-image: url('/static/alerts_bell.png'); background-repeat: no-repeat; background-size: 12% 50%; background-position-x: 200px; background-position-y: center;">Alerts</a>
+        <a href="#" class="menu-item"style="background-image: url('/static/barchart_dingbat.png'); background-repeat: no-repeat; background-size: 12% 50%; background-position-x: 200px; background-position-y: center;">Statistics</a>
+        <a href="#" class="menu-item"style="background-image: url('/static/camera_dingbat.png'); background-repeat: no-repeat; background-size: 12% 50%; background-position-x: 200px; background-position-y: center;">Camera</a>
+        <a href="#" class="menu-item" style="background-image: url('/static/settings_dingbat.png'); background-repeat: no-repeat; background-size: 12% 50%; background-position-x: 200px; background-position-y: center;">Settings</a>
+        <a href="/logout" class="logout-button" style="    text-align: center; font-weight: bold;
+    padding: 15px;
+    border-radius: 4px; font-size: 20px;
+    transition: background-color 0.3s ease;background-image: url('/static/door_logout_dingbat.png'); background-repeat: no-repeat; background-size: 12% 45%; background-position-x: 200px; background-position-y: 10px;">Logout</a>
     </div>
     <div class="content">
         <!-- Content will be updated by JavaScript -->
@@ -620,20 +637,22 @@ document.getElementById('alerts-tbody').addEventListener('click', function(event
     </div>
 </div>
 <div id="head_">Alerts</div>
-<div class="dashboard-container" style="display: flex; justify-content: space-between;">
+<div class="Dashboard-container" style="display: flex; justify-content: space-between;">
     <div class="left-section" style="flex: 3; display: flex; flex-direction: column;">
         <div class="cards-container">
             <div class="card card-iguana">
                 <div class="card-title">Iguana</div>
+
                 <div class="card-count" id="iguana-count">Loading...</div>
+
             </div>
             <div class="card card-rodent">
                 <div class="card-title">Rodent</div>
                 <div class="card-count" id="rodent-count">Loading...</div>
             </div>
-            <div class="card card-boa">
-                <div class="card-title">Boa</div>
-                <div class = "card-count" id="boa-count">Loading...</div>
+            <div class="card card-Snake">
+                <div class="card-title">Snake</div>
+                <div class = "card-count" id="Snake-count">Loading...</div>
             </div>
         </div>
 
@@ -659,7 +678,7 @@ document.getElementById('alerts-tbody').addEventListener('click', function(event
         <option value="all">All Types</option>
         <option value="Iguana">Iguana</option>
         <option value="Rodent">Rodent</option>
-        <option value="Boa">Boa</option>
+        <option value="Snake">Snake</option>
     </select>
         <select id="alert-date-select" class="filter-select">
             <option value="all">All Dates</option>
@@ -751,7 +770,7 @@ function applyFilters(event) {
 }
     function updateContentToStatistics() {
 contentDiv.innerHTML = `
-<div id="head_" style="background-color: #4CAF50; padding: 20px 20px; color: white; font-size: 30px; text-align: center;">Statistics</div>
+<div id="head_">Statistics</div>
 <div class="statistics-container" style="display: flex; flex-direction: row; justify-content: space-between; padding: 20px; width: 100%;">
     <div class="filter-menu-stats" style="flex: 1; background-color: #f9f9f9; padding: 20px; border-radius: 10px; margin-right: 20px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">
         <h2 style='font-size: 20px; font-weight: bold; background-color: #4CAF50; color: white; padding: 10px 15px; margin-bottom: 15px; border-radius: 5px;'>Filter Statistics</h2>
@@ -765,8 +784,8 @@ contentDiv.innerHTML = `
             </select>
             <select id="stats-location-select" class="filter-select" style="width: 100%; padding: 10px; margin-bottom: 10px;">
                 <option value="most_frequent">Most Frequent Locations</option>
-                <option value="alert_status">Alert Status</option>
-                <option value="alerts_by_type">Alerts by Type</option>
+                <option value="alert_status">Alerts Status</option>
+                <option value="alerts_by_type">All Time Alerts by Type</option>
                 <option value="alerts_over_time">Alerts Over Time</option>
             </select>
         </div>
@@ -873,7 +892,9 @@ function updateStatsTable(data) {
 }
 function drawAlertStatusChart() {
     updateTableHeaders('alert_status');
-
+    if (currentChart) {
+                currentChart.destroy(); // Destroy the existing chart
+            }
     fetch('/api/stats/alert_status')
         .then(response => response.json())
         .then(data => {
@@ -881,10 +902,8 @@ function drawAlertStatusChart() {
             const ctx = document.getElementById('mainChart').getContext('2d');
             const labels = Object.keys(data);
             const values = Object.values(data);
-            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels and counts
-            if (currentChart) {
-                currentChart.destroy(); // Destroy the existing chart
-            }
+            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels_ and counts
+
 
        currentChart=     new Chart(ctx, {
                 type: 'doughnut',
@@ -933,7 +952,7 @@ function drawAlertsByTypeChart() {
         .then(data => {
             const labels = Object.keys(data);
             const values = Object.values(data);
-            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels and counts
+            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels_ and counts
             const ctx = document.getElementById('mainChart').getContext('2d');
             if (currentChart) {
                 currentChart.destroy();
@@ -1011,7 +1030,7 @@ function drawAlertsOverTimeChart() {
             const ctx = document.getElementById('mainChart').getContext('2d');
             const labels = Object.keys(data);
             const values = labels.map(label => data[label]);
-            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels and counts
+            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels_ and counts
             if (currentChart) {
                 currentChart.destroy(); // Destroy the existing chart
             }
@@ -1096,7 +1115,7 @@ function drawAlertsOverTimeChart() {
                     <option value="">Select a PestPi</option>
                 </select>
             </div>
-            <div id="camera-feed">
+            <div id="camera-feed" >
                 <p>No feed selected</p>
             </div>
         `;
@@ -1318,12 +1337,12 @@ window.onclick = function(event) {
     }
 
     function updateAlertCounts() {
-        fetch('/api/alerts')
+        fetch('/api/card_alerts')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('iguana-count').textContent = data.iguana || '0';
-                document.getElementById('rodent-count').textContent = data.rodent || '0';
-                document.getElementById('boa-count').textContent = data.boa || '0';
+                document.getElementById('iguana-count').textContent = data.iguana;
+                document.getElementById('rodent-count').textContent = data.rodent;
+                document.getElementById('Snake-count').textContent = data.Snake ;
             })
             .catch(error => {
                 console.error('Error fetching alert data:', error);
@@ -1358,7 +1377,7 @@ window.onclick = function(event) {
         // Attempt to load image
         const img = new Image();
         img.onload = function() {
-            feed.innerHTML = `<img src="http://${ip}:8080/video_feed" type="video/mp4">`;
+            feed.innerHTML = `<img  src="http://${ip}:8080/video_feed" type="video/mp4">`;
         };
         img.onerror = function() {
             feed.innerHTML = '<p>Camera not active, please verify location.</p>';
@@ -1449,7 +1468,7 @@ function drawLocationStatsChart(timeFilter) {
             const ctx = document.getElementById('mainChart').getContext('2d');
             const labels = data.map(d => d.count);
             const values = data.map(d => d.location);
-            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels and counts
+            updateStatsTable(labels.map((label, index) => ({ label: label, count: values[index] }))); // Update the table with labels_ and counts
             if (currentChart) {
                 currentChart.destroy(); // Destroy the existing chart
             }
