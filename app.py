@@ -21,7 +21,8 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-
+import jwt
+from time import time
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True)
@@ -37,6 +38,19 @@ class User(UserMixin, db.Model):
 
     def get_id(self):
         return str(self.user_id)
+
+    def get_reset_password_token(self, expires_in=600):
+        return jwt.encode(
+            {'reset_password': self.user_id, 'exp': time() + expires_in},
+            app.config['SECRET_KEY'], algorithm='HS256')
+    @staticmethod
+    def verify_reset_password_token(token):
+        try:
+            user_id = jwt.decode(token, app.config['SECRET_KEY'],
+                                 algorithms=['HS256'])['reset_password']
+        except:
+            return None
+        return User.query.get(user_id)
 class Alert(db.Model):
     __tablename__ = 'alerts'
 
@@ -198,36 +212,48 @@ def get_locations():
     return jsonify(locations)
 
 @app.route('/api/stats/total_alerts')
+@login_required
 def total_alerts():
-    total = Alert.query.count()
+    # Count only alerts belonging to the current user
+    total = Alert.query.filter_by(user_id=current_user.user_id).count()
     return jsonify({'total_alerts': total})
 @app.route('/api/stats/alert_status')
 def alert_status():
-    print("I AM HERE")
-    active = Alert.query.filter_by(alert_isactive=True).count()
-    resolved = Alert.query.filter_by(alert_isactive=False).count()
+
+    active = Alert.query.filter_by(alert_isactive=True,user_id=current_user.user_id).count()
+    resolved = Alert.query.filter_by(alert_isactive=False,user_id=current_user.user_id).count()
     return jsonify({'active': active, 'resolved': resolved})
 @app.route('/api/stats/alerts_by_type')
+@login_required
 def alerts_by_type():
-    stats = db.session.query(Alert.alert_type, func.count(Alert.alert_type).label('count')).group_by(Alert.alert_type).all()
+    user_id = current_user.user_id  # Retrieve the current user's ID
+    stats = db.session.query(
+        Alert.alert_type,
+        func.count(Alert.alert_type).label('count')
+    ).filter(Alert.user_id == user_id).group_by(Alert.alert_type).all()  # Filter by user_id and group by alert type
+
     return jsonify({atype: count for atype, count in stats})
 
 from sqlalchemy import  cast, Date
 
 @app.route('/api/stats/alerts_over_time')
+@login_required
 def alerts_over_time():
-    # Fetching data from the database, grouped by date
+    user_id = get_current_user_id()  # Get the current user's ID
+    # Fetching data from the database, grouped by date, filtered by the current user
     stats = db.session.query(
         cast(Alert.alert_date, Date).label('date'),  # Ensure the date is treated as a Date object without time
         func.count('*').label('count')
-    ).group_by('date').order_by('date').all()
+    ).filter(Alert.user_id == user_id).group_by('date').order_by('date').all()
 
     # Converting data to a serializable format
     result = {date.strftime("%Y-%m-%d"): count for date, count in stats}  # Format date as string "YYYY-MM-DD"
 
     return jsonify(result)
 @app.route('/api/location_stats')
+@login_required
 def get_location_stats():
+    user_id = current_user.user_id  # Get the current user's ID
     location_filter = request.args.get('location', 'most_frequent')
     time_filter = request.args.get('time', 'all_time')
 
@@ -255,7 +281,7 @@ def get_location_stats():
         query = db.session.query(
             PestPi.pi_location,
             func.count(Alert.alert_id).label('count')
-        ).join(Alert, PestPi.pi_id == Alert.pi_id)
+        ).join(Alert, PestPi.pi_id == Alert.pi_id).filter(Alert.user_id == user_id)
 
         # Apply time filter if specified
         if start_date and end_date:
@@ -275,6 +301,7 @@ def get_location_stats():
         return jsonify([{'location': stat[0], 'count': stat[1]} for stat in stats])
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 @app.route('/api/pi_location/<int:pi_id>')
 def get_pi_location(pi_id):
     pi = PestPi.query.filter_by(pi_id=pi_id).first()
@@ -283,62 +310,45 @@ def get_pi_location(pi_id):
     else:
         return jsonify({'error': 'Pi not found'}), 404
 
-# @app.route('/api/active_alerts')
-# @login_required
-# def active_alerts():
-#     try:
-#
-#         alerts = Alert.query.filter_by(user_id=current_user.user_id, alert_isactive=True).order_by(Alert.alert_date.desc()).all()
-#         alerts_data = [{
-#             'alert_id': alert.alert_id,
-#             'alert_type': alert.alert_type,
-#             'alert_date': alert.alert_date.strftime("%Y-%m-%d %H:%M:%S"),
-#             'alert_location': get_pi_location(alert.pi_id)
-#         } for alert in alerts]
-#
-#         return jsonify(alerts_data), 200
-#     except Exception as e:
-#         print(e)
-#         return jsonify({'error': 'Failed to fetch alerts'}), 500
+
 @app.route('/api/active_alerts')
 @login_required
 def active_alerts():
-    try:
-        alerts = Alert.query.with_entities(Alert.alert_id, Alert.alert_type, Alert.alert_date, Alert.pi_id).filter_by(user_id=current_user.user_id, alert_isactive=True).order_by(Alert.alert_date.desc()).all()
-        alerts_data = [{
-            'alert_id': alert.alert_id,
-            'alert_type': alert.alert_type,
-            'alert_date': alert.alert_date.strftime("%Y-%m-%d  %H:%M"),
-            'alert_location': get_pi_location(alert.pi_id)
-        } for alert in alerts]
+    # Fetch only active alerts related to the logged-in user
+    alerts = Alert.query.filter_by(user_id=current_user.user_id, alert_isactive=True).order_by(Alert.alert_date.desc()).all()
+    alerts_data = [{
+        'alert_id': alert.alert_id,
+        'alert_type': alert.alert_type,
+        'alert_date': alert.alert_date.strftime("%Y-%m-%d  %H:%M"),
+        'alert_location': get_pi_location(alert.pi_id)
+    } for alert in alerts]
 
-        return jsonify(alerts_data), 200
-    except Exception as e:
-        print(e)
-        return jsonify({'error': 'Failed to fetch alerts'}), 500
+    return jsonify(alerts_data), 200
 
 @app.route('/api/alerts')
+@login_required
 def get_alerts():
-    iguana_count = Alert.query.filter_by(alert_type='Iguana', alert_isactive=True).count()
-    rodent_count = Alert.query.filter_by(alert_type='Rodent', alert_isactive=True).count()
-    boa_count = Alert.query.filter_by(alert_type='Boa', alert_isactive=True).count()
+    # Only fetch alerts for the current logged-in user
+    iguana_count = Alert.query.filter_by(user_id=current_user.user_id, alert_type='Iguana', alert_isactive=True).count()
+    rodent_count = Alert.query.filter_by(user_id=current_user.user_id, alert_type='Rodent', alert_isactive=True).count()
+    Snake_count = Alert.query.filter_by(user_id=current_user.user_id, alert_type='Snake', alert_isactive=True).count()
 
     return jsonify({
         'iguana': iguana_count,
         'rodent': rodent_count,
-        'boa': boa_count
+        'Snake': Snake_count
     })
 
 @app.route('/api/card_alerts')
 def get_card():
-    iguana_count = Alert.query.filter_by(alert_type='Iguana', alert_isactive=True,user_id=get_current_user_id()).count()
-    rodent_count = Alert.query.filter_by(alert_type='Rodent', alert_isactive=True,user_id=get_current_user_id()).count()
-    boa_count = Alert.query.filter_by(alert_type='Boa', alert_isactive=True,user_id=get_current_user_id()).count()
+    iguana_count = Alert.query.filter_by(alert_type='Iguana', alert_isactive=True,user_id=current_user.user_id).count()
+    rodent_count = Alert.query.filter_by(alert_type='Rodent', alert_isactive=True,user_id=current_user.user_id).count()
+    Snake_count = Alert.query.filter_by(alert_type='Snake', alert_isactive=True,user_id=current_user.user_id).count()
 
     return jsonify({
         'iguana': iguana_count,
         'rodent': rodent_count,
-        'boa': boa_count
+        'Snake': Snake_count
     })
 
 
@@ -364,14 +374,9 @@ def update_email():
 
 @app.route('/configure_pestpi', methods=['POST'])
 def configure_pestpi():
-    if not request.json:
-        return jsonify({'error': 'Missing JSON data'}), 400
-
-
     pi_ipmain = request.json.get('pi_ipmain')
     pi_location = request.json.get('pi_location')
     pi_ip = request.json.get('pi_ip')
-
 
     user_id = get_current_user_id()
     if not user_id:
@@ -381,11 +386,15 @@ def configure_pestpi():
     if pestpi:
         pestpi.pi_ipmain = pi_ipmain
         pestpi.pi_location = pi_location
+        action = 'updated'
     else:
         pestpi = PestPi(user_id=user_id, pi_ipmain=pi_ipmain, pi_location=pi_location, pi_ip=pi_ip)
         db.session.add(pestpi)
+        action = 'created'
 
     db.session.commit()
+    return jsonify({'message': f'PestPi configuration {action} successfully', 'pi_ip': pi_ip}), 200
+
 class MainPest(db.Model):
     __tablename__ = 'mainpests'
 
@@ -510,6 +519,60 @@ def get_image(alert_id):
             mimetype='image/jpeg'
         )
     return jsonify({'error': 'Image not found or access denied'}), 404
+from flask import jsonify
+from flask_mail import Mail, Message
+
+# Configure Flask-Mail
+app.config['MAIL_SERVER'] = 'live.smtp.mailtrap.io'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'api'
+app.config['MAIL_PASSWORD'] = '58889bce877a0e312449a81ec8bb1f81'
+app.config['MAIL_FROM_ADDRESS'] = 'pestpi@pest-pi.com'
+mail = Mail(app)
+
+@app.route('/send-reset-email', methods=['POST'])
+def send_reset_email():
+    email = request.form.get('email')
+    user = User.query.filter_by(user_email=email).first()
+    if not user:
+        return jsonify({'message': 'No account found with that email address.'}), 404
+
+    # Generate a password reset token
+    token = user.get_reset_password_token()  # This function needs to be implemented in the User model
+
+    # Compose the email message
+    msg = Message('Reset Your Password',
+                  sender='pestpi@pest-pi.com',
+                  recipients=[email])
+    msg.body = f'''To reset your password, visit the following link:
+{url_for('reset_password', token=token, _external=True)}
+
+If you did not make this request then simply ignore this email and no changes will be made.
+'''
+    mail.send(msg)
+    return jsonify({'message': 'An email with instructions to reset your password has been sent to you.'}), 200
+
+
+@app.route('/reset_password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    user = User.verify_reset_password_token(token)
+    if not user:
+        return redirect(url_for('login'))  # Or return an error message
+
+    if request.method == 'POST':
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+        if password != confirm_password:
+            flash('Passwords must match.')
+            return redirect(url_for('reset_password', token=token))
+
+        user.set_password(password)
+        db.session.commit()
+        flash('Your password has been reset.')
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', token=token)
 
 if __name__ == '__main__':
     db.create_all()
