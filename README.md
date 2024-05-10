@@ -30,3 +30,8 @@ python app.py
 ```
 
 And open the browser in the following link: http://127.0.0.1:5000/
+
+Demo User Account Info is: 
+Account: JavierMaldo34@gmail.com
+Password: root
+
